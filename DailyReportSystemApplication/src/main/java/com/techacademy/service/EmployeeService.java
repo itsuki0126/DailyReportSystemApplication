@@ -97,6 +97,7 @@ public class EmployeeService {
             return ErrorKinds.RANGECHECK_ERROR;
         }
 
+        //パスワードをハッシュ化して登録
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 
         return ErrorKinds.CHECK_OK;
@@ -117,6 +118,26 @@ public class EmployeeService {
         // 桁数チェック
         int passwordLength = employee.getPassword().length();
         return passwordLength < 8 || 16 < passwordLength;
+    }
+
+    // 従業員更新
+    @Transactional
+    public ErrorKinds update(Employee employee) {
+
+        // パスワードがnullでない場合のみ、パスワードチェックを行う
+        if (employee.getPassword() != null) {
+            // パスワードチェック
+            ErrorKinds result = employeePasswordCheck(employee);
+            if (ErrorKinds.CHECK_OK != result) {
+                return result;
+            }
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        employee.setUpdatedAt(now);
+
+        employeeRepository.save(employee);
+        return ErrorKinds.SUCCESS;
     }
 
 }
