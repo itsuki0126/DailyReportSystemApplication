@@ -124,7 +124,19 @@ public class EmployeeController {
 
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
-    public String update(@Validated Employee employee, @PathVariable String code, Model model) {
+    public String update(@Validated Employee employee, @PathVariable String code, BindingResult res, Model model) {
+
+        // 入力チェック
+        if (res.hasErrors()) {
+            return edit(code, model);
+        }
+
+        ErrorKinds result = employeeService.update(employee, code);
+
+        if (ErrorMessage.contains(result)) {
+            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+            return edit(code, model);
+        }
 
         employeeService.update(employee, code);
 

@@ -124,8 +124,6 @@ public class EmployeeService {
     @Transactional
     public ErrorKinds update(Employee employee, String code) {
 
-        Employee dbEmployee = findByCode(code);
-
         // パスワードがnullでない場合のみ、パスワードチェックを行う
         if (employee.getPassword() != "") {
             // パスワードチェック
@@ -134,6 +132,8 @@ public class EmployeeService {
                 return result;
             }
         }
+
+        Employee dbEmployee = findByCode(code);
 
         if (employee.getPassword() == "") {
             employee.setPassword(dbEmployee.getPassword());
