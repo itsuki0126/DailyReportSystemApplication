@@ -124,7 +124,7 @@ public class EmployeeController {
 
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
-    public String update(@Validated Employee employee, BindingResult res, Model model) {
+    public String update(@Validated Employee employee, Model model) {
 
         employeeService.update(employee);
 
