@@ -122,16 +122,32 @@ public class EmployeeService {
 
     // 従業員更新
     @Transactional
-    public ErrorKinds update(Employee employee) {
+    public ErrorKinds update(Employee employee, String code) {
+
+        Employee dbEmployee = findByCode(code);
 
         // パスワードがnullでない場合のみ、パスワードチェックを行う
-        if (employee.getPassword() != null) {
+        if (employee.getPassword() != "") {
             // パスワードチェック
             ErrorKinds result = employeePasswordCheck(employee);
             if (ErrorKinds.CHECK_OK != result) {
                 return result;
             }
         }
+
+        if (employee.getPassword() == "") {
+            employee.setPassword(dbEmployee.getPassword());
+        }
+
+        boolean deleteFlag = dbEmployee.isDeleteFlg();
+        employee.setDeleteFlg(deleteFlag);
+
+        LocalDateTime createdAt = dbEmployee.getCreatedAt();
+        employee.setCreatedAt(createdAt);
+
+        LocalDateTime now = LocalDateTime.now();
+        employee.setUpdatedAt(now);
+
 
         employeeRepository.save(employee);
         return ErrorKinds.SUCCESS;

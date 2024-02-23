@@ -1,7 +1,5 @@
 package com.techacademy.controller;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -128,34 +126,9 @@ public class EmployeeController {
     @PostMapping(value = "/{code}/update")
     public String update(@Validated Employee employee, @PathVariable String code, Model model) {
 
-        System.out.println("code="+code);
-        Employee dbEmployee = employeeService.findByCode(code);
-
-        if (employee.getPassword() == null) {
-            employee.setPassword(dbEmployee.getPassword());
-        }
-
-        boolean deleteFlag = dbEmployee.isDeleteFlg();
-        employee.setDeleteFlg(deleteFlag);
-
-        LocalDateTime createdAt = dbEmployee.getCreatedAt();
-        employee.setCreatedAt(createdAt);
-
-        LocalDateTime now = LocalDateTime.now();
-        employee.setUpdatedAt(now);
-
-        employeeService.update(employee);
+        employeeService.update(employee, code);
 
         return "redirect:/employees";
     }
-
-//    // 従業員更新処理
-//    @PostMapping(value = "/{code}/update")
-//    public String update(@Validated Employee employee, Model model) {
-//
-//        employeeService.update(employee);
-//
-//        return "redirect:/employees";
-//    }
 
 }
