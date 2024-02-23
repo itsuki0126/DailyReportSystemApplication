@@ -133,9 +133,6 @@ public class EmployeeService {
             }
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        employee.setUpdatedAt(now);
-
         employeeRepository.save(employee);
         return ErrorKinds.SUCCESS;
     }
