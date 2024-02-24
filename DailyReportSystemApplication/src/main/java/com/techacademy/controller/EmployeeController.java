@@ -128,7 +128,7 @@ public class EmployeeController {
 
         // 入力チェック
         if (res.hasErrors()) {
-            return edit(code, model);
+            return "employees/update";
         }
 
         ErrorKinds result = employeeService.update(employee, code);
