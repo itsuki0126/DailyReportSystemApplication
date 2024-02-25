@@ -23,7 +23,6 @@
                                 <div class="wizard wizard-success mb-4">
                                     <div class="mb-3">
                                         <label class="form-label" for="reportDate">日付</label>
-                                        <p class="mb-1"></p>
                                         <div class="col-md-7">
                                             <input class="form-control" type="date" th:field="*{reportDate}" th:errorclass="err" id="reportDate">
                                             <span th:errors="*{reportDate}" class="text-danger"></span>
@@ -32,7 +31,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="name">氏名</label>
-                                        <p class="mb-1" th:text="${loggedInUserName}"></p>
+                                        <p class="mb-1" th:text="${report.employee.name}"></p>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="title">タイトル</label>
@@ -48,11 +47,6 @@
                                         <div class="col-md-7">
                                             <textarea class="form-control" th:field="*{content}" th:errorclass="err" id="content"></textarea>
                                             <span th:errors="*{content}" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="col-md-7">
-                                            <input type="hidden" th:field="*{code}">
                                         </div>
                                     </div>
                                 <p class="mt-5">

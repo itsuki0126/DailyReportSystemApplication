@@ -51,12 +51,6 @@ public class Report {
     @NotEmpty
     private String content;
 
-    // 社員番号
-    @Column(length = 10)
-    @NotEmpty
-    @Length(max = 10)
-    private String code;
-
     // 削除フラグ
     @Column(columnDefinition="TINYINT", nullable = false)
     private boolean deleteFlg;

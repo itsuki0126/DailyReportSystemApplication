@@ -1,8 +1,9 @@
 package com.techacademy.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,22 +15,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
-import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
-import com.techacademy.service.EmployeeService;
 import com.techacademy.service.ReportService;
+import com.techacademy.service.UserDetail;
 
 @Controller
 @RequestMapping("reports")
 public class ReportController {
 
     private final ReportService reportService;
-    private final EmployeeService employeeService;
 
     @Autowired
-    public ReportController(ReportService reportService, EmployeeService employeeService) {
+    public ReportController(ReportService reportService) {
         this.reportService = reportService;
-        this.employeeService = employeeService;
     }
 
     // 日報一覧画面
@@ -44,43 +42,34 @@ public class ReportController {
 
     // 日報新規登録画面
     @GetMapping(value = "/add")
-    public String create(@ModelAttribute Report report, Employee employee, Model model) {
+    public String create(@ModelAttribute Report report, @AuthenticationPrincipal UserDetail userDetail, Model model) {
 
-        // SpringSecurityを使用して、ログイン中のユーザーのcodeを取得
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String loggedInUserID = authentication.getName();
-
-        // modelにcodeを登録
-        model.addAttribute("code", loggedInUserID);
-
-        // IDから氏名を取得し、modelに登録
-        Employee loggedInUser = employeeService.findByCode(loggedInUserID);
-        String loggedInUserName = loggedInUser.getName();
-        model.addAttribute("loggedInUserName", loggedInUserName);
+        report.setEmployee(userDetail.getEmployee());
+        model.addAttribute("report", report);
 
         return "reports/add";
     }
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
-    public String add(@Validated Report report, BindingResult res, Employee employee, Model model) {
+    public String add(@Validated Report report, BindingResult res, @AuthenticationPrincipal UserDetail userDetail, Model model) {
 
-        System.out.println("Code from form: " + report.getCode());
-        System.out.println("Title from form: " + report.getTitle());
-        System.out.println("Content from form: " + report.getContent());
-        System.out.println("Date from form: " + report.getReportDate());
+        // ログイン中のユーザー情報を取得
+        report.setEmployee(userDetail.getEmployee());
+
+        // 「ログイン中の従業員 かつ 入力した日付」の日報データが存在するかどうかをチェック
+        String checkCode = report.getEmployee().getCode();
+        LocalDate checkReportDate = report.getReportDate();
+
+        if (!reportService.findByEmployeeCodeAndReportDate(checkCode, checkReportDate).isEmpty()) {
+            model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DATECHECK_ERROR),
+                    ErrorMessage.getErrorValue(ErrorKinds.DATECHECK_ERROR));
+            return create(report, userDetail, model);
+        }
 
         // 入力チェック
         if (res.hasErrors()) {
-            System.out.println("バリデーションエラー！！！: " + res.getAllErrors());
-            return create(report, employee, model);
-        }
-
-        ErrorKinds result = reportService.save(report);
-
-        if (ErrorMessage.contains(result)) {
-            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-            return create(report, employee, model);
+            return create(report, userDetail, model);
         }
 
         reportService.save(report);
