@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.techacademy.constants.ErrorKinds;
+import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.service.EmployeeService;
@@ -44,12 +46,14 @@ public class ReportController {
     @GetMapping(value = "/add")
     public String create(@ModelAttribute Report report, Employee employee, Model model) {
 
-        // SpringSecurityを使用して、ログイン中のユーザー名を取得
+        // SpringSecurityを使用して、ログイン中のユーザーIDとユーザー名を取得
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedInUserID = authentication.getName();
         Employee loggedInUser = employeeService.findByCode(loggedInUserID);
+
+        // modelにloggedInUserNameを登録
         String loggedInUserName = loggedInUser.getName();
-        employee.setName(loggedInUserName);
+        model.addAttribute("loggedInUserName", loggedInUserName);
 
         return "reports/add";
     }
@@ -58,10 +62,25 @@ public class ReportController {
     @PostMapping(value = "/add")
     public String add(@Validated Report report, BindingResult res, Employee employee, Model model) {
 
+        // SpringSecurityを使用して、ログイン中のユーザーIDを取得し、codeにセット
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInUserID = authentication.getName();
+        report.setCode(loggedInUserID);
+
         // 入力チェック
         if (res.hasErrors()) {
+            System.out.println("バリデーションエラー！！！: " + res.getAllErrors());
             return create(report, employee, model);
         }
+
+        ErrorKinds result = reportService.save(report);
+
+        if (ErrorMessage.contains(result)) {
+            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+            return create(report, employee, model);
+        }
+
+        reportService.save(report);
 
         return "redirect:/reports";
     }
