@@ -50,6 +50,11 @@
                                             <span th:errors="*{content}" class="text-danger"></span>
                                         </div>
                                     </div>
+                                    <div class="mb-3">
+                                        <div class="col-md-7">
+                                            <input type="hidden" th:field="*{code}">
+                                        </div>
+                                    </div>
                                 <p class="mt-5">
                                     <input type="submit" value="登録" class="btn btn-primary">
                                     <a th:href="@{/reports}" class="btn btn-primary">戻る</a>

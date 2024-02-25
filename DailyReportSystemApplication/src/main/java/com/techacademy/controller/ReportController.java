@@ -46,12 +46,15 @@ public class ReportController {
     @GetMapping(value = "/add")
     public String create(@ModelAttribute Report report, Employee employee, Model model) {
 
-        // SpringSecurityを使用して、ログイン中のユーザーIDとユーザー名を取得
+        // SpringSecurityを使用して、ログイン中のユーザーのcodeを取得
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedInUserID = authentication.getName();
-        Employee loggedInUser = employeeService.findByCode(loggedInUserID);
 
-        // modelにloggedInUserNameを登録
+        // modelにcodeを登録
+        model.addAttribute("code", loggedInUserID);
+
+        // IDから氏名を取得し、modelに登録
+        Employee loggedInUser = employeeService.findByCode(loggedInUserID);
         String loggedInUserName = loggedInUser.getName();
         model.addAttribute("loggedInUserName", loggedInUserName);
 
@@ -62,10 +65,10 @@ public class ReportController {
     @PostMapping(value = "/add")
     public String add(@Validated Report report, BindingResult res, Employee employee, Model model) {
 
-        // SpringSecurityを使用して、ログイン中のユーザーIDを取得し、codeにセット
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String loggedInUserID = authentication.getName();
-        report.setCode(loggedInUserID);
+        System.out.println("Code from form: " + report.getCode());
+        System.out.println("Title from form: " + report.getTitle());
+        System.out.println("Content from form: " + report.getContent());
+        System.out.println("Date from form: " + report.getReportDate());
 
         // 入力チェック
         if (res.hasErrors()) {
