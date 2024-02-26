@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -61,7 +62,7 @@ public class ReportController {
         String checkCode = report.getEmployee().getCode();
         LocalDate checkReportDate = report.getReportDate();
 
-        if (!reportService.findByEmployeeCodeAndReportDate(checkCode, checkReportDate).isEmpty()) {
+        if (reportService.findByEmployeeCodeAndReportDate(checkCode, checkReportDate) != null) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DATECHECK_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DATECHECK_ERROR));
             return create(report, userDetail, model);
@@ -75,5 +76,51 @@ public class ReportController {
         reportService.save(report);
 
         return "redirect:/reports";
+    }
+
+    // 日報詳細画面
+    @GetMapping(value = "/{id}/")
+    public String detail(@PathVariable Integer id, Model model) {
+
+        model.addAttribute("report", reportService.findById(id));
+        return "reports/detail";
+    }
+
+    // 日報削除処理
+    @PostMapping(value = "/{id}/delete")
+    public String delete(@PathVariable Integer id) {
+
+        reportService.delete(id);
+
+        return "redirect:/reports";
+    }
+
+    // 日報更新画面
+    @GetMapping(value = "/{id}/update")
+    public String edit(@PathVariable Integer id, Model model) {
+        Report report = reportService.findById(id);
+        model.addAttribute("report", report);
+        return "reports/update";
+    }
+
+    // 日報更新処理
+    @PostMapping(value = "/{id}/update")
+    public String update(@Validated Report report, BindingResult res, Model model) {
+
+        ErrorKinds result = reportService.update(report);
+
+        if (ErrorMessage.contains(result)) {
+            model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
+            return "reports/update";
+        }
+
+        // 入力チェック
+        if (res.hasErrors()) {
+            return "reports/update";
+        }
+
+        reportService.update(report);
+
+        return "reports/update";
     }
 }
