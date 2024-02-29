@@ -121,6 +121,6 @@ public class ReportController {
 
         reportService.update(report);
 
-        return "reports/update";
+        return "redirect:/reports";
     }
 }

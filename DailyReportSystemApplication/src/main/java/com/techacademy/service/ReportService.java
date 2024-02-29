@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techacademy.constants.ErrorKinds;
+import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.repository.ReportRepository;
 
@@ -72,8 +73,10 @@ public class ReportService {
     @Transactional
     public ErrorKinds update(Report report) {
 
-        System.out.println("エラー確認用！！！！！" + report.getId());
-        System.out.println("エラー確認用！！！！！" + report.getEmployee().getCode());
+        // チェック用に、Employeeを取得しreportにセット
+        Report tempReport = findById(report.getId());
+        Employee tempEmployee = tempReport.getEmployee();
+        report.setEmployee(tempEmployee);
 
         // チェック用に、employeeCodeとreprtDateを取得
         String employeeCode = report.getEmployee().getCode();
@@ -83,13 +86,21 @@ public class ReportService {
         Report dbReport = reportRepository.findByEmployeeCodeAndReportDate(employeeCode, reportDate);
 
         // 画面で表示中のもの以外に、登録されている日報がある場合エラー
-        if (dbReport != null && !dbReport.equals(report)) {
+        if (dbReport != null && !dbReport.getId().equals(report.getId())) {
             return ErrorKinds.DATECHECK_ERROR;
         }
+
+        // 必要事項を取得しセット
+        boolean deleteFlag = dbReport.isDeleteFlg();
+        report.setDeleteFlg(deleteFlag);
+
+        LocalDateTime createdAt = dbReport.getCreatedAt();
+        report.setCreatedAt(createdAt);
 
         LocalDateTime now = LocalDateTime.now();
         report.setUpdatedAt(now);
 
+        // 保存（更新）
         reportRepository.save(report);
         return ErrorKinds.SUCCESS;
     }
