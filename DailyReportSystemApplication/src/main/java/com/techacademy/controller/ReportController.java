@@ -107,19 +107,17 @@ public class ReportController {
     @PostMapping(value = "/{id}/update")
     public String update(@Validated Report report, BindingResult res, Model model) {
 
+        // 入力チェック
+        if (res.hasErrors()) {
+            return "reports/update";
+        }
+
         ErrorKinds result = reportService.update(report);
 
         if (ErrorMessage.contains(result)) {
             model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
             return "reports/update";
         }
-
-        // 入力チェック
-        if (res.hasErrors()) {
-            return "reports/update";
-        }
-
-        reportService.update(report);
 
         return "redirect:/reports";
     }

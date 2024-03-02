@@ -91,10 +91,10 @@ public class ReportService {
         }
 
         // 必要事項を取得しセット
-        boolean deleteFlag = dbReport.isDeleteFlg();
+        boolean deleteFlag = tempReport.isDeleteFlg();
         report.setDeleteFlg(deleteFlag);
 
-        LocalDateTime createdAt = dbReport.getCreatedAt();
+        LocalDateTime createdAt = tempReport.getCreatedAt();
         report.setCreatedAt(createdAt);
 
         LocalDateTime now = LocalDateTime.now();
