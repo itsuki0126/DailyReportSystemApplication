@@ -30,6 +30,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="name">氏名</label>
+                                        <input type="hidden" th:field="${report.employee.name}" id="name">
                                         <p class="mb-1" th:text="${report.employee.name}"></p>
                                     </div>
                                     <div class="mb-3">
