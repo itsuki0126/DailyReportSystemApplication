@@ -1,5 +1,6 @@
 # バージョンの指定
 version: "3.9"
+
 # 各Dockerfileの指定
 services:
   # Apache2・Java用のコンテナ（webという名前は任意で設定したもの）
